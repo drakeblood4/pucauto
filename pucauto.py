@@ -319,14 +319,16 @@ def find_highest_value_bundle(trades):
 
 def optimal_bundle(highest_value_bundle):
     """The best bundle if you have more tradable cards than the other guy has
-    points is the group of cards that comes closest to reaching that.
+    points is the group of cards that comes closest to reaching their 
+    available points.
 
     This does the old sort from complete_trades prior to this commit if there
-    is less value than the guy has available points.
+    is less value than the reciever has available points.
 
-    Otherwise, it finds the biggest bundle, sorts that by biggest first, then
-    sorts the leftovers by biggest first just in case one of the things you're
-    trying to ship out gets jumped on by a third party."""
+    Otherwise, it finds the biggest bundle under their available poits, sorts 
+    that by card value, then sorts the leftovers by card value just in case 
+    one of the things you're trying to trade out gets jumped on by a third 
+    party."""
 
 
 
