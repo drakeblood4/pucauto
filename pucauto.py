@@ -317,6 +317,59 @@ def find_highest_value_bundle(trades):
         return None
 
 
+def optimal_bundle(highest_value_bundle):
+    """The best bundle if you have more tradable cards than the other guy has
+    points is the group of cards that comes closest to reaching that.
+
+    This does the old sort from complete_trades prior to this commit if there
+    is less value than the guy has available points.
+
+    Otherwise, it finds the biggest bundle, sorts that by biggest first, then
+    sorts the leftovers by biggest first just in case one of the things you're
+    trying to ship out gets jumped on by a third party."""
+
+
+
+    cards = highest_value_bundle[1]["cards"]
+    sorted_cards = []
+
+
+    
+    if highest_value_bundle[1]["value"] <= highest_value_bundle[1]["points"]:
+        sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+    else:
+        largest = 0
+        sorted_cards = []
+        for i in range (1, len(cards)):
+            can_change = False
+            for j in itertools.combinations(cards, i):
+                bundle_value = 0
+                for k in j:
+                    bundle_value += k["value"]
+                if bundle_value <= highest_value_bundle[1]["points"]:
+                    can_change = True
+                    if bundle_value > largest:
+                        largest = bundle_value
+                        sorted_cards = list(j)
+                        
+            if can_change == 0:
+                break
+
+
+        sorted_cards.sort( key=lambda k: k["value"], reverse=True)
+
+        leftovers = []
+        for m in cards:
+            if m not in sorted_cards:
+                leftovers.append(m)
+                
+        for n in leftovers:
+            sorted_cards.append(n)
+
+    return(sorted_cards)
+
+
+
 def complete_trades(highest_value_bundle):
     """Sort the cards by highest value first and then send them all.
 
@@ -329,8 +382,8 @@ def complete_trades(highest_value_bundle):
         return
 
     cards = highest_value_bundle[1]["cards"]
-    # Sort the cards by highest value to make the most valuable trades first.
-    sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+    # Here's the fancy new change. Trade as much stuff to the other guy as possible
+    sorted_cards = optimal_bundle(highest_value_bundle)
 
     member_name = highest_value_bundle[1]["name"]
     member_points = highest_value_bundle[1]["points"]
